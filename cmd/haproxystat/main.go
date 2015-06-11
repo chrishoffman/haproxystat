@@ -50,9 +50,9 @@ func main() {
 	flag.Parse()
 
 	statsdAddress := fmt.Sprintf("%s:%d", config.StatsdHost, config.StatsdPort)
-	statsdHandlerClient := newStatsdHandler(statsdAddress, config.StatPrefix)
+	statsdHandler := newStatsdHandler(statsdAddress, config.StatPrefix)
 
 	s := haproxystat.NewServer()
-	s.AddHandler(statsdHandlerClient.logHandler())
+	s.AddHandler(statsdHandler.logHandler())
 	s.Start(config.BindAddress, config.Port)
 }

@@ -16,9 +16,7 @@ type statsdHandler struct {
 }
 
 func newStatsdHandler(address string, prefix string) *statsdHandler {
-	var client statsd.Statsd
-
-	client = statsd.NewStatsdClient(address, prefix)
+	client := statsd.NewStatsdClient(address, prefix)
 	err := client.CreateSocket()
 	if err != nil {
 		panic(err)
