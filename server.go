@@ -3,11 +3,12 @@ package haproxystat
 import (
 	"fmt"
 
+	"github.com/chrishoffman/haproxylog"
 	"gopkg.in/mcuadros/go-syslog.v2"
 )
 
-// LogHandler reprents a handler that takes in a HaproxyHTTPLog message for processing
-type LogHandler func(*HaproxyHTTPLog)
+// LogHandler reprents a handler that takes in a haproxy.Log message for processing
+type LogHandler func(*haproxy.Log)
 
 // Server is the container for the server instance
 type Server struct {
@@ -27,8 +28,6 @@ func (s *Server) AddHandler(handler LogHandler) {
 // Start binds the syslog server, attaches the handlers and
 // waits for traffic to delegate to the handlers
 func (s *Server) Start(bindAddress string, port int) {
-	var err error
-
 	channel := make(syslog.LogPartsChannel)
 	handler := syslog.NewChannelHandler(channel)
 
@@ -37,14 +36,14 @@ func (s *Server) Start(bindAddress string, port int) {
 	server.SetHandler(handler)
 
 	listenAddress := fmt.Sprintf("%s:%d", bindAddress, port)
-	err = server.ListenTCP(listenAddress)
-	if err != nil {
-		panic(err)
+	listenErr := server.ListenTCP(listenAddress)
+	if listenErr != nil {
+		panic(listenErr)
 	}
 
-	err = server.Boot()
-	if err != nil {
-		panic(err)
+	bootErr := server.Boot()
+	if bootErr != nil {
+		panic(bootErr)
 	}
 
 	go func(channel syslog.LogPartsChannel) {
@@ -57,8 +56,7 @@ func (s *Server) Start(bindAddress string, port int) {
 }
 
 func (s *Server) logHandler(rawLog string) {
-	l := newHaproxyLog(rawLog)
-	log, err := l.ParseHTTP()
+	log, err := haproxy.NewLog(rawLog)
 	if err != nil {
 		return
 	}

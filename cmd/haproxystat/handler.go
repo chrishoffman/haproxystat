@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/chrishoffman/haproxystat"
+	"github.com/chrishoffman/haproxylog"
 	"github.com/quipo/statsd"
 )
 
@@ -25,28 +25,36 @@ func newStatsdHandler(address string, prefix string) *statsdHandler {
 	return &statsdHandler{client}
 }
 
-func (s *statsdHandler) logHandler() func(*haproxystat.HaproxyHTTPLog) {
-
-	return func(log *haproxystat.HaproxyHTTPLog) {
-		// Request stats
-		requestStatPrefix := fmt.Sprintf("%s.%s.%s", cleanStatToken(log.FrontendName),
-			cleanStatToken(log.BackendName), cleanAndLowerStatToken(log.ServerName))
-		// HTTP Status Codes
-		s.client.Incr(fmt.Sprintf("%s.http_status.%d", requestStatPrefix, log.HTTPStatusCode), 1)
-		// Endpoint stats
-		basePath := urlBasePathRegexp.FindStringSubmatch(log.HTTPRequest.URL.Path)[1]
-		if basePath == "" {
-			basePath = "_root_"
+func (s *statsdHandler) logHandler() func(*haproxy.Log) {
+	return func(log *haproxy.Log) {
+		switch log.GetFormat() {
+		case haproxy.HTTP:
+			s.sendHTTPStats(log)
 		}
-		s.client.Timing(fmt.Sprintf("%s.endpoint.%s.%s", requestStatPrefix, cleanAndLowerStatToken(basePath),
-			log.HTTPRequest.Method), log.Tt)
+	}
+}
 
-		// SSL stats
-		if log.SslVersion != "" {
-			sslStat := fmt.Sprintf("%s.ssl.%s.%s", cleanStatToken(log.FrontendName),
-				cleanStatToken(log.SslVersion), cleanStatToken(log.SslCipher))
-			s.client.Incr(sslStat, 1)
-		}
+func (s *statsdHandler) sendHTTPStats(log *haproxy.Log) {
+	// Request stats
+	requestStatPrefix := fmt.Sprintf("%s.%s.%s", cleanStatToken(log.FrontendName),
+		cleanStatToken(log.BackendName), cleanAndLowerStatToken(log.ServerName))
+
+	// HTTP Status Codes
+	s.client.Incr(fmt.Sprintf("%s.http_status.%d", requestStatPrefix, log.HTTPStatusCode), 1)
+
+	// Endpoint stats
+	basePath := urlBasePathRegexp.FindStringSubmatch(log.HTTPRequest.URL.Path)[1]
+	if basePath == "" {
+		basePath = "_root_"
+	}
+	s.client.Timing(fmt.Sprintf("%s.endpoint.%s.%s", requestStatPrefix, cleanAndLowerStatToken(basePath),
+		log.HTTPRequest.Method), log.Tt)
+
+	// SSL stats
+	if log.SslVersion != "" {
+		sslStat := fmt.Sprintf("%s.ssl.%s.%s", cleanStatToken(log.FrontendName),
+			cleanStatToken(log.SslVersion), cleanStatToken(log.SslCipher))
+		s.client.Incr(sslStat, 1)
 	}
 }
 
