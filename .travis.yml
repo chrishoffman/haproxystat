@@ -4,6 +4,7 @@ go:
 install:
   - go get github.com/mitchellh/gox
 script:
+  - go get -v ./...
   - go test -v ./...
   - gox -os="linux darwin" -arch="amd64" -build-toolchain
   - cd cmd/haproxystat && gox -os="linux darwin" -arch="amd64" -output="bin/haproxystat.{{.OS}}-{{.Arch}}"
