@@ -2,14 +2,11 @@ package main
 
 import (
 	"fmt"
-	"regexp"
 	"strings"
 
 	"github.com/chrishoffman/haproxylog"
 	"github.com/quipo/statsd"
 )
-
-var urlBasePathRegexp = regexp.MustCompile(`^/(\w*).*`)
 
 type statsdHandler struct {
 	client statsd.Statsd
@@ -43,12 +40,15 @@ func (s *statsdHandler) sendHTTPStats(log *haproxy.Log) {
 	s.client.Incr(fmt.Sprintf("%s.http_status.%d", requestStatPrefix, log.HTTPStatusCode), 1)
 
 	// Endpoint stats
-	basePath := urlBasePathRegexp.FindStringSubmatch(log.HTTPRequest.URL.Path)[1]
-	if basePath == "" {
-		basePath = "_root_"
+	pathParts := strings.Split(log.HTTPRequest.URL.Path, "/")
+	if len(pathParts) > 1 {
+		basePath := pathParts[1]
+		if basePath == "" {
+			basePath = "_root_"
+		}
+		s.client.Timing(fmt.Sprintf("%s.endpoint.%s.%s", requestStatPrefix, cleanAndLowerStatToken(basePath),
+			log.HTTPRequest.Method), log.Tt)
 	}
-	s.client.Timing(fmt.Sprintf("%s.endpoint.%s.%s", requestStatPrefix, cleanAndLowerStatToken(basePath),
-		log.HTTPRequest.Method), log.Tt)
 
 	// SSL stats
 	if log.SslVersion != "" {
