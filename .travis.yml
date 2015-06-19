@@ -8,7 +8,7 @@ script:
   - go test -v ./...
   - gox -os="linux darwin" -arch="amd64" -build-toolchain
   - cd cmd/haproxystat && gox -os="linux darwin" -arch="amd64" -output="bin/haproxystat.{{.OS}}-{{.Arch}}"
-  - cd cmd/haproxystat && tar cvzf haproxystat.tgz bin/*
+  - tar cvzf haproxystat.tgz bin/*
 deploy:
   provider: releases
   api_key:
