@@ -3,18 +3,20 @@ package main
 import (
 	"fmt"
 	"strings"
+	"time"
 
+	"github.com/cactus/go-statsd-client/statsd"
 	"github.com/chrishoffman/haproxylog"
-	"github.com/quipo/statsd"
 )
 
 type statsdHandler struct {
-	client statsd.Statsd
+	client statsd.Statter
 }
 
 func newStatsdHandler(address string, prefix string) *statsdHandler {
-	client := statsd.NewStatsdClient(address, prefix)
-	err := client.CreateSocket()
+	flushInterval := time.Second * 1
+
+	client, err := statsd.NewBufferedClient(address, prefix, flushInterval, 0)
 	if err != nil {
 		panic(err)
 	}
@@ -38,9 +40,9 @@ func (s *statsdHandler) sendHTTPStats(log *haproxy.Log) {
 	requestStatPrefix := fmt.Sprintf("%s.%s.%s", frontendName, backendName, serverName)
 
 	// Request stats
-	s.client.Incr(fmt.Sprintf("%s.response_size", requestStatPrefix), log.BytesRead)
-	s.client.Incr(fmt.Sprintf("%s.hits", requestStatPrefix), 1)
-	s.client.Incr(fmt.Sprintf("%s.responses.%d", requestStatPrefix, log.HTTPStatusCode), 1)
+	s.inc(fmt.Sprintf("%s.response_size", requestStatPrefix), log.BytesRead)
+	s.inc(fmt.Sprintf("%s.hits", requestStatPrefix), 1)
+	s.inc(fmt.Sprintf("%s.responses.%d", requestStatPrefix, log.HTTPStatusCode), 1)
 
 	// Timing Stats
 	s.timing(fmt.Sprintf("%s.response_time", requestStatPrefix), log.Tt)
@@ -77,15 +79,19 @@ func (s *statsdHandler) sendHTTPStats(log *haproxy.Log) {
 	if log.SslVersion != "" {
 		sslStat := fmt.Sprintf("%s.ssl.%s.%s", cleanStatToken(log.FrontendName),
 			cleanStatToken(log.SslVersion), cleanStatToken(log.SslCipher))
-		s.client.Incr(sslStat, 1)
+		s.inc(sslStat, 1)
 	}
+}
+
+func (s *statsdHandler) inc(stat string, count int64) {
+	s.client.Inc(stat, count, 1.0)
 }
 
 func (s *statsdHandler) timing(stat string, delta int64) {
 	if delta == -1 {
 		return
 	}
-	s.client.Timing(stat, delta)
+	s.client.Timing(stat, delta, 1.0)
 }
 
 func cleanAndLowerStatToken(s string) string {

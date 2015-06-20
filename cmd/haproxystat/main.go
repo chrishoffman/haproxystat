@@ -26,7 +26,7 @@ func init() {
 		statsdPortDefault = 8125
 		statsdPortDesc    = "The port for the StatsD server"
 
-		statPrefixDefault = "haproxy."
+		statPrefixDefault = "haproxy"
 		statPrefixDesc    = "The prefix to use for stats. Use %HOST% for the current hostname."
 
 		bindAddressDefault = "127.0.0.1"
