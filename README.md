@@ -1,4 +1,4 @@
-# haproxystat [![Build Status](https://travis-ci.org/chrishoffman/haproxystat.png)](https://travis-ci.org/chrishoffman/haproxystat)
+# haproxystat [![Build Status](https://travis-ci.org/chrishoffman/haproxystat.png)](https://travis-ci.org/chrishoffman/haproxystat) [![GoDoc](https://godoc.org/github.com/chrishoffman/haproxystat?status.svg)](https://godoc.org/github.com/chrishoffman/haproxystat)
 
 haproxystat is a go library that provides a syslog server that parses the [haproxy](http://www.haproxy.org/) syslog messages in realtime and easily streams them to external sources.
 
