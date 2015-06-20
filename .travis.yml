@@ -6,10 +6,10 @@ install:
 script:
   - go get -v ./...
   - go test -v ./...
-  - gox -os="linux darwin" -arch="amd64" -build-toolchain
+  - gox -os="linux darwin" -arch=amd64 -build-toolchain
   - cd cmd/haproxystat
-  - gox -os="linux darwin" -arch="amd64" -output="bin/haproxystat.{{.OS}}-{{.Arch}}"
-  - tar cvzf haproxystat.tgz bin/*
+  - gox -os="linux darwin" -arch=amd64 -output="bin/haproxystat.{{.OS}}-{{.Arch}}"
+  - tar cvzf haproxystat.tgz -C bin .
 deploy:
   provider: releases
   api_key:
