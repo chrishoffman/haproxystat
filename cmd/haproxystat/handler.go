@@ -24,12 +24,10 @@ func newStatsdHandler(address string, prefix string) *statsdHandler {
 	return &statsdHandler{client}
 }
 
-func (s *statsdHandler) logHandler() func(*haproxy.Log) {
-	return func(log *haproxy.Log) {
-		switch log.GetFormat() {
-		case haproxy.HTTP:
-			s.sendHTTPStats(log)
-		}
+func (s *statsdHandler) logHandler(log *haproxy.Log) {
+	switch log.GetFormat() {
+	case haproxy.HTTP:
+		s.sendHTTPStats(log)
 	}
 }
 

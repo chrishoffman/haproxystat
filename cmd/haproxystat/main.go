@@ -53,6 +53,6 @@ func main() {
 	statsdHandler := newStatsdHandler(statsdAddress, config.StatPrefix)
 
 	s := haproxystat.NewServer()
-	s.AddHandler(statsdHandler.logHandler())
+	s.AddHandler(statsdHandler.logHandler)
 	s.Start(config.BindAddress, config.Port)
 }
