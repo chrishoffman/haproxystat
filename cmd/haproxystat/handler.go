@@ -42,9 +42,9 @@ func (s *statsdHandler) sendHTTPStats(log *haproxy.Log) {
 	s.inc(fmt.Sprintf("%s.responses.%d", requestStatPrefix, log.HTTPStatusCode), 1)
 
 	// Timing Stats
-	// s.timing(fmt.Sprintf("%s.response_time", requestStatPrefix), log.Tt)
-	// s.timing(fmt.Sprintf("%s.queue_time", requestStatPrefix), log.Tw)
-	// s.timing(fmt.Sprintf("%s.request_time", requestStatPrefix), log.Tq)
+	s.timing(fmt.Sprintf("%s.response_time", requestStatPrefix), log.Tt)
+	s.timing(fmt.Sprintf("%s.queue_time", requestStatPrefix), log.Tw)
+	s.timing(fmt.Sprintf("%s.request_time", requestStatPrefix), log.Tq)
 
 	// Misc Stats (stored in timing to average)
 	// s.timing(fmt.Sprintf("%s.retries", requestStatPrefix), log.Retries)
