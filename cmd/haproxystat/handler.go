@@ -42,24 +42,24 @@ func (s *statsdHandler) sendHTTPStats(log *haproxy.Log) {
 	s.inc(fmt.Sprintf("%s.responses.%d", requestStatPrefix, log.HTTPStatusCode), 1)
 
 	// Timing Stats
-	s.timing(fmt.Sprintf("%s.response_time", requestStatPrefix), log.Tt)
-	s.timing(fmt.Sprintf("%s.queue_time", requestStatPrefix), log.Tw)
-	s.timing(fmt.Sprintf("%s.request_time", requestStatPrefix), log.Tq)
+	// s.timing(fmt.Sprintf("%s.response_time", requestStatPrefix), log.Tt)
+	// s.timing(fmt.Sprintf("%s.queue_time", requestStatPrefix), log.Tw)
+	// s.timing(fmt.Sprintf("%s.request_time", requestStatPrefix), log.Tq)
 
 	// Misc Stats (stored in timing to average)
-	s.timing(fmt.Sprintf("%s.retries", requestStatPrefix), log.Retries)
-	s.timing(fmt.Sprintf("%s.queue", requestStatPrefix), log.ServerQueue)
-	s.timing(fmt.Sprintf("%s.active_connections", requestStatPrefix), log.ActConn)
-	s.timing(fmt.Sprintf("%s.backend_connections", requestStatPrefix), log.BeConn)
-	s.timing(fmt.Sprintf("%s.frontend_connections", requestStatPrefix), log.FeConn)
-	s.timing(fmt.Sprintf("%s.server_connections", requestStatPrefix), log.SrvConn)
-	s.timing(fmt.Sprintf("%s.response_size", requestStatPrefix), log.BytesRead)
+	// s.timing(fmt.Sprintf("%s.retries", requestStatPrefix), log.Retries)
+	// s.timing(fmt.Sprintf("%s.queue", requestStatPrefix), log.ServerQueue)
+	// s.timing(fmt.Sprintf("%s.active_connections", requestStatPrefix), log.ActConn)
+	// s.timing(fmt.Sprintf("%s.backend_connections", requestStatPrefix), log.BeConn)
+	// s.timing(fmt.Sprintf("%s.frontend_connections", requestStatPrefix), log.FeConn)
+	// s.timing(fmt.Sprintf("%s.server_connections", requestStatPrefix), log.SrvConn)
+	// s.timing(fmt.Sprintf("%s.response_size", requestStatPrefix), log.BytesRead)
 
 	// Backend Stats
-	backendPrefix := fmt.Sprintf("_backend.%s", backendName)
-	s.timing(fmt.Sprintf("%s.connect_time", backendPrefix), log.Tc)
-	s.timing(fmt.Sprintf("%s.response_time", backendPrefix), log.Tr)
-	s.timing(fmt.Sprintf("%s.queue", backendPrefix), log.BackendQueue)
+	// backendPrefix := fmt.Sprintf("_backend.%s", backendName)
+	// s.timing(fmt.Sprintf("%s.connect_time", backendPrefix), log.Tc)
+	// s.timing(fmt.Sprintf("%s.response_time", backendPrefix), log.Tr)
+	// s.timing(fmt.Sprintf("%s.queue", backendPrefix), log.BackendQueue)
 
 	// Endpoint stats
 	pathParts := strings.Split(log.HTTPRequest.URL.Path, "/")
