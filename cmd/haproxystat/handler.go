@@ -32,13 +32,12 @@ func (s *statsdHandler) logHandler(log *haproxy.Log) {
 }
 
 func (s *statsdHandler) sendHTTPStats(log *haproxy.Log) {
-	frontendName := cleanStatToken(log.BackendName)
-	backendName := cleanStatToken(log.FrontendName)
+	frontendName := cleanStatToken(log.FrontendName)
+	backendName := cleanStatToken(log.BackendName)
 	serverName := cleanAndLowerStatToken(log.ServerName)
 	requestStatPrefix := fmt.Sprintf("%s.%s.%s", frontendName, backendName, serverName)
 
 	// Request stats
-	s.inc(fmt.Sprintf("%s.response_size", requestStatPrefix), log.BytesRead)
 	s.inc(fmt.Sprintf("%s.hits", requestStatPrefix), 1)
 	s.inc(fmt.Sprintf("%s.responses.%d", requestStatPrefix, log.HTTPStatusCode), 1)
 
@@ -57,7 +56,7 @@ func (s *statsdHandler) sendHTTPStats(log *haproxy.Log) {
 	s.timing(fmt.Sprintf("%s.response_size", requestStatPrefix), log.BytesRead)
 
 	// Backend Stats
-	backendPrefix := fmt.Sprintf("backend.%s", backendName)
+	backendPrefix := fmt.Sprintf("_backend.%s", backendName)
 	s.timing(fmt.Sprintf("%s.connect_time", backendPrefix), log.Tc)
 	s.timing(fmt.Sprintf("%s.response_time", backendPrefix), log.Tr)
 	s.timing(fmt.Sprintf("%s.queue", backendPrefix), log.BackendQueue)
@@ -75,7 +74,7 @@ func (s *statsdHandler) sendHTTPStats(log *haproxy.Log) {
 
 	// SSL stats
 	if log.SslVersion != "" {
-		sslStat := fmt.Sprintf("%s.ssl.%s.%s", cleanStatToken(log.FrontendName),
+		sslStat := fmt.Sprintf("_frontend.%s.ssl.%s.%s", frontendName,
 			cleanStatToken(log.SslVersion), cleanStatToken(log.SslCipher))
 		s.inc(sslStat, 1)
 	}
