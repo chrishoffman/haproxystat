@@ -62,14 +62,16 @@ func (s *statsdHandler) sendHTTPStats(log *haproxy.Log) {
 	// s.timing(fmt.Sprintf("%s.queue", backendPrefix), log.BackendQueue)
 
 	// Endpoint stats
-	pathParts := strings.Split(log.HTTPRequest.URL.Path, "/")
-	if len(pathParts) > 1 {
-		basePath := pathParts[1]
-		if basePath == "" {
-			basePath = "_root_"
+	if log.HTTPRequest.URL != nil {
+		pathParts := strings.Split(log.HTTPRequest.URL.Path, "/")
+		if len(pathParts) > 1 {
+			basePath := pathParts[1]
+			if basePath == "" {
+				basePath = "_root_"
+			}
+			s.timing(fmt.Sprintf("%s.endpoint.%s.%s.response_time", requestStatPrefix, cleanAndLowerStatToken(basePath),
+				log.HTTPRequest.Method), log.Tt)
 		}
-		s.timing(fmt.Sprintf("%s.endpoint.%s.%s.response_time", requestStatPrefix, cleanAndLowerStatToken(basePath),
-			log.HTTPRequest.Method), log.Tt)
 	}
 
 	// SSL stats
