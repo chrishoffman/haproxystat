@@ -1,6 +1,6 @@
 language: go
 go:
-- 1.5
+  - 1.5
 script:
   - go get -v -t ./...
   - go test -v ./...
