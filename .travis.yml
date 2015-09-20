@@ -1,21 +1,20 @@
 language: go
 go:
-- 1.4
-install:
-  - go get github.com/mitchellh/gox
+- 1.5
 script:
   - go get -v -t ./...
   - go test -v ./...
-  - gox -os="linux darwin" -arch=amd64 -build-toolchain
   - cd cmd/haproxystat
-  - gox -os="linux darwin" -arch=amd64 -output="bin/haproxystat.{{.OS}}-{{.Arch}}"
-  - tar cvzf haproxystat.tgz -C bin .
+  - mkdir -p release
+  - GOOS=linux GOARCH=amd64 go build -o release/haproxystat-linux-amd64
+  - GOOS=darwin GOARCH=amd64 go build -o release/haproxystat-darwin-amd64
 deploy:
   provider: releases
   api_key:
     secure: aSUJiyNA3sA4wZwoM72AGCU1/PhHb+YxHU5fmVYCM0YyM/jve2kGjAxwCHAIUnO5I5eq3ZozliUUSRBttHcaO91VxHVYL1XnU9HTH0lwJWh7scL8COrgPK4mOSzclnzUKFG6FNl77qUiob/p1M3ykr9EP4nvLQ6BSWNIQrXPUwdDBauRrad37/AeaN5FxayWOstnGyMAg8f+TTCHYpBhYeSKsLeFiK4gDGOfzuXJG0EgS9y0knym9HnTF8Q43ENPWqNAcaVBdPibumMJdODWjoZcrSk6ZxuOYI9hSFnmLl0Gew0ke7Q5g/YmFR+gvE+poGn/VwdFKPdpgsvg8L24lb7zEaPrp70tBM5Vs9SEy3JwVBikaKaS0iCqaPV0vCZRHgn52D7NMNiJn5JnulI7iDtsbnIaBaalUiz1VotErR8Gvaw0olrGVVKXVm5gx0k5vRngBiJU9n0CH9gJrGVXZ47vTCO0X1GnG4tHwZHJp6J9XLwDvnvtuj+C9AfY4WaaN7xNEsqGXDpUkq8onKYqG76qIRiOQHoGwewC1KGHRgxlI/ZVsMfE8A+UlEvzdba/fp7g/88U3ce4nNDjfGQFQVsGLmaPKDsYk3pllA9QmEycG+9warH4wUDRvnFq6jqmpvF/t9pZpe7geKdUTKH65sDrP21xhM5rT0/5E3TDFOA=
-  file: haproxystat.tgz
-  skip_cleanup: true
+  file:
+    - release/haproxystat-linux-amd64
+    - release/haproxystat-darwin-amd64
   on:
     repo: chrishoffman/haproxystat
     tags: true
